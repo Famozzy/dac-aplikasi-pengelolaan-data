@@ -11,6 +11,7 @@
 const books = [];
 
 const RENDER_EVENT = 'render-books';
+const DELETE_EVENT = 'delete-book';
 const localBooksKey = 'books';
 
 function isStorageExists() {
@@ -27,19 +28,18 @@ function updateLocalStorage() {
 }
 
 function createBookElement(book) {
-	const { id, title, author, genre, isReading, isFinished } = book;
+	const { id, title, author, year, isComplete } = book;
 
 	const getActionButton = () => {
-		if (isReading) {
-			return '<button class="btn-primary" id="finish-btn">Tandai Sebagai Selesai</button>';
-		} else if (isFinished) {
-			return '<button class="btn-primary" id="return-btn">Kembalikan Buku</button>';
-		} else {
+		if (!isComplete) {
 			return `
-      <button class="btn-primary" id="read-btn">Baca</button>
-      <button class="btn-delete" id="delete-btn">Hapus</button>
-      `;
+			<button class="btn-primary" id="finish-btn">Selesai dibaca</button>
+      <button class="btn-delete" id="delete-btn">Hapus</button>`;
 		}
+
+		return `
+    <button class="btn-primary" id="undo-btn">Belum selesai dibaca</button>
+    <button class="btn-delete" id="delete-btn">Hapus</button>`;
 	};
 
 	return `
@@ -49,8 +49,8 @@ function createBookElement(book) {
       <p>${title}</p>
       <h3>Pengarang</h3>
       <p>${author}</p>
-      <h3>Genre</h3>
-      <p>${genre}</p>
+      <h3>Year</h3>
+      <p>${year}</p>
     </div>
     <div class="book-actions">
       ${getActionButton()}
@@ -61,21 +61,20 @@ function createBookElement(book) {
 function clearForm() {
 	document.getElementById('title').value = '';
 	document.getElementById('author').value = '';
-	document.getElementById('genre').value = '';
+	document.getElementById('year').value = '';
 }
 
 function addBook() {
 	const title = document.getElementById('title').value;
 	const author = document.getElementById('author').value;
-	const genre = document.getElementById('genre').value;
+	const year = document.getElementById('year').value;
 
 	const bookObject = {
 		id: generateId(),
 		title,
 		author,
-		genre,
-		isReading: false,
-		isFinished: false,
+		year,
+		isComplete: false,
 	};
 
 	clearForm();
@@ -85,27 +84,24 @@ function addBook() {
 
 function deleteBook(bookElement) {
 	const bookId = bookElement.getAttribute('book-id');
-
 	const bookTarget = books.findIndex(book => book.id === Number(bookId));
+	if (bookTarget === -1) return;
+
 	books.splice(bookTarget, 1);
 
 	document.dispatchEvent(new CustomEvent(RENDER_EVENT));
 }
 
-function setBookStatus(bookElement, state) {
+function setBookStatus(bookElement, status) {
 	const bookId = bookElement.getAttribute('book-id');
 	console.log(bookId);
 	const bookTarget = books.findIndex(book => book.id === Number(bookId));
 	if (bookTarget === -1) return;
 
-	if (state === 'reading') {
-		books[bookTarget].isReading = true;
-	} else if (state === 'finished') {
-		books[bookTarget].isReading = false;
-		books[bookTarget].isFinished = true;
-	} else if (state === 'return') {
-		books[bookTarget].isReading = false;
-		books[bookTarget].isFinished = false;
+	if (status === 'completed') {
+		books[bookTarget].isComplete = true;
+	} else if (status === 'uncompleted') {
+		books[bookTarget].isComplete = false;
 	}
 
 	document.dispatchEvent(new CustomEvent(RENDER_EVENT));
@@ -122,7 +118,6 @@ document.addEventListener('DOMContentLoaded', () => {
 	}
 
 	const submitForm = document.getElementById('form');
-	const bookList = document.getElementById('book-list');
 	const readingList = document.getElementById('reading-list');
 	const finishedList = document.getElementById('finished-list');
 
@@ -131,47 +126,38 @@ document.addEventListener('DOMContentLoaded', () => {
 		addBook();
 	});
 
-	bookList.addEventListener('click', e => {
-		const that = e.target;
-		if (that.id === 'read-btn') {
-			setBookStatus(that.parentElement.parentElement, 'reading');
-		} else if (that.id === 'delete-btn') {
-			deleteBook(that.parentElement.parentElement);
-		}
-	});
-
 	readingList.addEventListener('click', e => {
 		const that = e.target;
 		if (that.id === 'finish-btn')
-			setBookStatus(that.parentElement.parentElement, 'finished');
+			setBookStatus(that.parentElement.parentElement, 'completed');
+		else if (that.id === 'delete-btn')
+			deleteBook(that.parentElement.parentElement);
 	});
 
 	finishedList.addEventListener('click', e => {
 		const that = e.target;
-		if (that.id === 'return-btn')
-			setBookStatus(that.parentElement.parentElement, 'return');
+		if (that.id === 'undo-btn')
+			setBookStatus(that.parentElement.parentElement, 'uncompleted');
+		else if (that.id === 'delete-btn')
+			deleteBook(that.parentElement.parentElement);
 	});
 });
 
 document.addEventListener(RENDER_EVENT, () => {
-	const bookList = document.getElementById('book-list');
 	const readingList = document.getElementById('reading-list');
 	const finishedList = document.getElementById('finished-list');
 
-	bookList.innerHTML = '';
 	readingList.innerHTML = '';
 	finishedList.innerHTML = '';
 
 	for (const book of books) {
 		const bookElement = createBookElement(book);
-		if (book.isReading) {
-			readingList.innerHTML += bookElement;
-		} else if (book.isFinished) {
-			finishedList.innerHTML += bookElement;
-		} else {
-			bookList.innerHTML += bookElement;
-		}
+		book.isComplete
+			? (finishedList.innerHTML += bookElement)
+			: (readingList.innerHTML += bookElement);
 	}
 
 	updateLocalStorage();
 });
+
+document.addEventListener(DELETE_EVENT, e => {});

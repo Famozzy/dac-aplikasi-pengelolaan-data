@@ -12,9 +12,9 @@
 			<h1>Bookshelf App</h1>
 		</header>
 
-		<section id="book-management">
+		<main>
 			<div class="container">
-				<div class="col-1">
+				<div>
 					<h2 class="header">Form Tambah Buku</h2>
 					<form class="form" id="form">
 						<div class="form-group">
@@ -26,8 +26,15 @@
 							<input type="text" name="author" id="author" required />
 						</div>
 						<div class="form-group">
-							<label for="genre">Genre Buku :</label>
-							<input type="text" name="genre" id="genre" required />
+							<label for="genre">Tahun Buku :</label>
+							<input
+								type="number"
+								name="year"
+								id="year"
+								min="0"
+								max="9999"
+								required
+							/>
 						</div>
 						<input
 							type="submit"
@@ -36,26 +43,16 @@
 						/>
 					</form>
 				</div>
-
-				<div class="col-2">
-					<h2 class="header">Daftar Buku</h2>
-					<div class="book-list" id="book-list"></div>
-				</div>
-			</div>
-		</section>
-
-		<section id="read-list">
-			<div class="container">
 				<div>
-					<h2>Belum selesai dibaca</h2>
-					<div id="reading-list"></div>
+					<h2 class="header">Belum selesai dibaca</h2>
+					<div class="book-list" id="reading-list"></div>
 				</div>
 				<div>
-					<h2>Selesai dibaca</h2>
-					<div id="finished-list"></div>
+					<h2 class="header">Selesai dibaca</h2>
+					<div class="book-list" id="finished-list"></div>
 				</div>
 			</div>
-		</section>
+		</main>
 
 		<script src="./js/script.js"></script>
 	</body>

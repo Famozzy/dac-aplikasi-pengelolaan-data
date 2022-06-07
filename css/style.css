@@ -28,8 +28,9 @@ header h1 {
 	font-size: 1.5rem;
 }
 
-header + section {
-	margin: 96px 0 32px 0;
+main {
+	margin-top: 96px;
+	margin-bottom: 32px;
 }
 
 .header {
@@ -42,19 +43,6 @@ header + section {
 	display: flex;
 	gap: 16px;
 	padding: 0 16px;
-	/* when viewport is 768px use these styles */
-	/* flex-direction: column; */
-}
-
-.col-1 {
-	flex: 1;
-	height: fit-content;
-}
-
-.col-2 {
-	flex: 2;
-	/* height: 600px;
-	max-height: 600px; */
 }
 
 .container > div {
@@ -63,15 +51,21 @@ header + section {
 	border: 1px solid #ccc;
 	border-radius: 0.5rem;
 	width: 100%;
+	max-height: 100%;
+}
+.container > div:first-child {
+	height: fit-content;
 }
 
 input[type='text'],
+input[type='number'],
 input[type='submit'],
 button {
 	outline: none;
 }
 
-input[type='text'] {
+input[type='text'],
+input[type='number'] {
 	width: 100%;
 	padding: 0.5rem;
 	border: 1px solid #ccc;
@@ -113,16 +107,8 @@ input[type='text'] {
 	background-color: #0284c7;
 }
 
-.book-list {
-	display: flex;
-	height: 550px;
-	column-gap: 16px;
-	flex-wrap: wrap;
-	overflow: auto;
-}
-
-.book-list > .book-item {
-	width: 48%;
+.btn-delete:hover {
+	background-color: #dc2626;
 }
 
 .book-item {
@@ -138,7 +124,8 @@ input[type='text'] {
 
 .book-actions {
 	display: flex;
-	flex-direction: row;
+	flex-direction: column;
+	gap: 0.5rem;
 	align-items: center;
 	column-gap: 0.5rem;
 	font-size: 14px;
@@ -160,14 +147,5 @@ input[type='text'] {
 @media screen and (max-width: 768px) {
 	.container {
 		flex-direction: column;
-	}
-
-	.book-list {
-		flex-wrap: nowrap;
-		height: auto;
-	}
-
-	.book-list .book-item:hover {
-		width: 100%;
 	}
 }
